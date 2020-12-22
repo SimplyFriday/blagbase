@@ -15,7 +15,7 @@ async function getFirestore(){
     const writeResult = firestore_con.collection('sample').doc('sample_doc').get().then(doc => {
         if (!doc.exists) { 
             console.log('No such document!'); 
-            return "No content";
+            return null;
         }
         else {
             return doc.data();
@@ -30,7 +30,15 @@ async function getFirestore(){
 
 app.get('/', async (req, res) => {
     var db_result = await getFirestore();
-    return res.render('index', {db_result});
+    
+    console.log(db_result);
+
+    if (db_result) {
+        return res.render('index', {db_result});
+    } else {
+        console.log ("Rendering error page!");
+        return res.render('error');
+    }
 });
 
 exports.app = functions.https.onRequest(app);
