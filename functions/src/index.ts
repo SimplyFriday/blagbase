@@ -2,36 +2,18 @@ import * as express from 'express';
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import * as exphbs from 'express-handlebars';
+import {FirestoreHelper} from './firestoreHelper';
 
 admin.initializeApp();
+var fsh = new FirestoreHelper();
 
 var app = express();
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 
-async function getFirestore(){
-    const firestore_con  = await admin.firestore();
-    
-    const writeResult = firestore_con.collection('sample').doc('sample_doc').get().then(doc => {
-        if (!doc.exists) { 
-            console.log('No such document!'); 
-            return null;
-        }
-        else {
-            return doc.data();
-        }
-    })
-    .catch(err => { 
-        console.log('Error getting document', err);
-    });
-
-    return writeResult
-}
-
 app.get('/', async (req, res) => {
-    var db_result = await getFirestore();
-    
-    console.log(db_result);
+    var db_result = await fsh.getFirestorePageById("home");
+    console.log(req.query);
 
     if (db_result) {
         return res.render('index', {db_result});
